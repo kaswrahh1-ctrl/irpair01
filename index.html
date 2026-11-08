@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IRpair - نظام إدارة صيانة الموبايل والكاشير</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --accent-color: #3b82f6;
+            --accent-hover: #2563eb;
+            --danger-color: #ef4444;
+            --success-color: #22c55e;
+            --border-color: #334155;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        header h1 {
+            margin: 0;
+            color: var(--accent-color);
+            font-size: 24px;
+        }
+        header span {
+            font-size: 14px;
+            color: #94a3b8;
+        }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .tab-btn {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+        .tab-btn.active, .tab-btn:hover {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        form {
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+        }
+        form.full-width {
+            grid-template-columns: 1fr;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        label {
+            font-size: 14px;
+            color: #cbd5e1;
+        }
+        input, select, textarea {
+            background-color: #0f172a;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        button.submit-btn {
+            background-color: var(--success-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            grid-column: 1 / -1;
+            transition: 0.3s;
+        }
+        button.submit-btn:hover {
+            opacity: 0.9;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            margin-top: 10px;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: right;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
+        }
+        th {
+            background-color: #1e293b;
+            color: #94a3b8;
+        }
+        tr:hover {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 16px;
+            color: #94a3b8;
+        }
+        .stat-card p {
+            margin: 0;
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+        .actions-cell button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            margin-left: 5px;
+        }
+        .filter-box {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            align-items: flex-end;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>IRpair - نظام إدارة الصيانة والكاشير</h1>
+        <span>مهندس/ هشام عيد | 01001220551</span>
+    </header>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab(event, 'repairs')">إدارة الصيانة</button>
+        <button class="tab-btn" onclick="switchTab(event, 'pos')">المبيعات والكاشير</button>
+        <button class="tab-btn" onclick="switchTab(event, 'expenses')">المصروفات والخزينة</button>
+        <button class="tab-btn" onclick="switchTab(event, 'reports')">التقارير والأرباح</button>
+    </div>
+
+    <!-- قسم الصيانة -->
+    <div id="repairs" class="tab-content active">
+        <h2>تسجيل جهاز جديد للصيانة</h2>
+        <form id="repairForm" onsubmit="addRepair(event)">
+            <div class="form-group">
+                <label>اسم العميل</label>
+                <input type="text" id="custName" required>
+            </div>
+            <div class="form-group">
+                <label>رقم الهاتف</label>
+                <input type="text" id="custPhone" required>
+            </div>
+            <div class="form-group">
+                <label>نوع الموبايل / الموديل</label>
+                <input type="text" id="deviceModel" required>
+            </div>
+            <div class="form-group">
+                <label>العطل / المشكلة</label>
+                <input type="text" id="faultDesc" required>
+            </div>
+            <div class="form-group">
+                <label>الإكسسوارات المرفقة</label>
+                <input type="text" id="accessories" placeholder="خط، كارت، غطاء...">
+            </div>
+            <div class="form-group">
+                <label>موعد الاستلام (المتوقع / الحالي)</label>
+                <input type="datetime-local" id="receiveDate" required>
+            </div>
+            <div class="form-group">
+                <label>تكلفة قطع الغيار (ج.م)</label>
+                <input type="number" step="0.01" id="partCost" value="0" required>
+            </div>
+            <div class="form-group">
+                <label>سعر إجمالي على العميل (ج.م)</label>
+                <input type="number" step="0.01" id="totalPrice" value="0" required>
+            </div>
+            <div class="form-group">
+                <label>العربون المدفوع (ج.م)</label>
+                <input type="number" step="0.01" id="deposit" value="0" required>
+            </div>
+            <div class="form-group">
+                <label>حالة الجهاز</label>
+                <select id="repairStatus">
+                    <option value="تحت الفحص">تحت الفحص</option>
+                    <option value="قيد الإصلاح">قيد الإصلاح</option>
+                    <option value="تم الإصلاح">تم الإصلاح</option>
+                    <option value="تم التسليم">تم التسليم</option>
+                </select>
+            </div>
+            <button type="submit" class="submit-btn">حفظ وإضافة الجهاز</button>
+        </form>
+
+        <h2>قائمة الأجهزة في الورشة</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>التاريخ</th>
+                    <th>العميل</th>
+                    <th>الهاتف</th>
+                    <th>الموديل والعطل</th>
+                    <th>التكلفة</th>
+                    <th>السعر</th>
+                    <th>الربح الصافي</th>
+                    <th>الحالة</th>
+                    <th>إجراءات / واتساب</th>
+                </tr>
+            </thead>
+            <tbody id="repairsTableBody"></tbody>
+        </table>
+    </div>
+
+    <!-- قسم المبيعات والكاشير -->
+    <div id="pos" class="tab-content">
+        <h2>تسجيل بيع إكسسوار أو منتج</h2>
+        <form id="posForm" onsubmit="addSale(event)">
+            <div class="form-group">
+                <label>اسم المنتج / الإكسسوار</label>
+                <input type="text" id="productName" required>
+            </div>
+            <div class="form-group">
+                <label>سعر الشراء (التكلفة)</label>
+                <input type="number" step="0.01" id="saleCost" value="0" required>
+            </div>
+            <div class="form-group">
+                <label>سعر البيع</label>
+                <input type="number" step="0.01" id="salePrice" value="0" required>
+            </div>
+            <div class="form-group">
+                <label>الكمية</label>
+                <input type="number" id="saleQty" value="1" required>
+            </div>
+            <button type="submit" class="submit-btn">إتمام وحفظ البيع</button>
+        </form>
+
+        <h2>سجل المبيعات</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>التاريخ</th>
+                    <th>المنتج</th>
+                    <th>الكمية</th>
+                    <th>التكلفة</th>
+                    <th>سعر البيع</th>
+                    <th>الربح الصافي</th>
+                    <th>حذف</th>
+                </tr>
+            </thead>
+            <tbody id="salesTableBody"></tbody>
+        </table>
+    </div>
+
+    <!-- قسم المصروفات -->
+    <div id="expenses" class="tab-content">
+        <h2>تسجيل المصروفات النثرية والتشغيلية</h2>
+        <form id="expForm" onsubmit="addExpense(event)">
+            <div class="form-group">
+                <label>بند المصروف (إيجار، كهرباء، شاي، أدوات...)</label>
+                <input type="text" id="expTitle" required>
+            </div>
+            <div class="form-group">
+                <label>المبلغ (ج.م)</label>
+                <input type="number" step="0.01" id="expAmount" required>
+            </div>
+            <button type="submit" class="submit-btn">حفظ المصروف</button>
+        </form>
+
+        <h2>سجل المصروفات</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>التاريخ</th>
+                    <th>البند</th>
+                    <th>المبلغ الخارج</th>
+                    <th>حذف</th>
+                </tr>
+            </thead>
+            <tbody id="expensesTableBody"></tbody>
+        </table>
+    </div>
+
+    <!-- قسم التقارير والأرباح -->
+    <div id="reports" class="tab-content">
+        <h2>التقارير المالية وإحصائيات الأرباح</h2>
+        <div class="filter-box">
+            <div class="form-group">
+                <label>من تاريخ</label>
+                <input type="date" id="filterFrom" onchange="updateReports()">
+            </div>
+            <div class="form-group">
+                <label>إلى تاريخ</label>
+                <input type="date" id="filterTo" onchange="updateReports()">
+            </div>
+            <button class="tab-btn" onclick="resetFilter()" style="height: 41px;">إلغاء التصفية</button>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>إجمالي الإيرادات</h3>
+                <p id="repTotalRevenue">0.00 ج.م</p>
+            </div>
+            <div class="stat-card">
+                <h3>إجمالي تكلفة قطع الغيار والمشتريات</h3>
+                <p id="repTotalCost">0.00 ج.م</p>
+            </div>
+            <div class="stat-card">
+                <h3>إجمالي المصروفات</h3>
+                <p id="repTotalExpenses">0.00 ج.م</p>
+            </div>
+            <div class="stat-card" style="border-color: var(--success-color);">
+                <h3>صافي الربح الحقيقي</h3>
+                <p id="repNetProfit" style="color: var(--success-color);">0.00 ج.م</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // تهيئة البيانات المحلية
+    let repairs = JSON.parse(localStorage.getItem('irp_repairs')) || [];
+    let sales = JSON.parse(localStorage.getItem('irp_sales')) || [];
+    let expenses = JSON.parse(localStorage.getItem('irp_expenses')) || [];
+
+    function switchTab(evt, tabName) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(tabName).classList.add('active');
+        evt.currentTarget.classList.add('active');
+        if(tabName === 'reports') updateReports();
+    }
+
+    function saveData() {
+        localStorage.setItem('irp_repairs', JSON.stringify(repairs));
+        localStorage.setItem('irp_sales', JSON.stringify(sales));
+        localStorage.setItem('irp_expenses', JSON.stringify(expenses));
+    }
+
+    // إدارة الصيانة
+    function addRepair(e) {
+        e.preventDefault();
+        const newRepair = {
+            id: Date.now(),
+            date: document.getElementById('receiveDate').value || new Date().toISOString().slice(0,16),
+            name: document.getElementById('custName').value,
+            phone: document.getElementById('custPhone').value,
+            model: document.getElementById('deviceModel').value,
+            fault: document.getElementById('faultDesc').value,
+            accessories: document.getElementById('accessories').value,
+            partCost: parseFloat(document.getElementById('partCost').value) || 0,
+            totalPrice: parseFloat(document.getElementById('totalPrice').value) || 0,
+            deposit: parseFloat(document.getElementById('deposit').value) || 0,
+            status: document.getElementById('repairStatus').value
+        };
+        repairs.unshift(newRepair);
+        saveData();
+        document.getElementById('repairForm').reset();
+        renderRepairs();
+    }
+
+    function deleteRepair(id) {
+        repairs = repairs.filter(r => r.id !== id);
+        saveData();
+        renderRepairs();
+    }
+
+    function renderRepairs() {
+        const tbody = document.getElementById('repairsTableBody');
+        tbody.innerHTML = '';
+        repairs.forEach(r => {
+            const profit = r.totalPrice - r.partCost;
+            const waText = encodeURIComponent(`مرحباً أ/ ${r.name}، بخصوص جهازك (${r.model})، الحالة الحالية: ${r.status}. الإجمالي: ${r.totalPrice} ج.م.`);
+            tbody.innerHTML += `
+                <tr>
+                    <td>${r.date.replace('T', ' ')}</td>
+                    <td>${r.name}</td>
+                    <td>${r.phone}</td>
+                    <td><b>${r.model}</b><br><small>${r.fault}</small></td>
+                    <td>${r.partCost.toFixed(2)}</td>
+                    <td>${r.totalPrice.toFixed(2)}</td>
+                    <td style="color: var(--success-color); font-weight: bold;">${profit.toFixed(2)}</td>
+                    <td>${r.status}</td>
+                    <td class="actions-cell">
+                        <a href="https://wa.me/2${r.phone}?text=${waText}" target="_blank" title="مراسلة واتساب">💬</a>
+                        <button onclick="deleteRepair(${r.id})" title="حذف">🗑️</button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    // مبيعات الإكسسوارات
+    function addSale(e) {
+        e.preventDefault();
+        const newSale = {
+            id: Date.now(),
+            date: new Date().toISOString().slice(0,10),
+            name: document.getElementById('productName').value,
+            cost: (parseFloat(document.getElementById('saleCost').value) || 0) * (parseInt(document.getElementById('saleQty').value) || 1),
+            price: (parseFloat(document.getElementById('salePrice').value) || 0) * (parseInt(document.getElementById('saleQty').value) || 1),
+            qty: parseInt(document.getElementById('saleQty').value) || 1
+        };
+        sales.unshift(newSale);
+        saveData();
+        document.getElementById('posForm').reset();
+        renderSales();
+    }
+
+    function deleteSale(id) {
+        sales = sales.filter(s => s.id !== id);
+        saveData();
+        renderSales();
+    }
+
+    function renderSales() {
+        const tbody = document.getElementById('salesTableBody');
+        tbody.innerHTML = '';
+        sales.forEach(s => {
+            const profit = s.price - s.cost;
+            tbody.innerHTML += `
+                <tr>
+                    <td>${s.date}</td>
+                    <td>${s.name}</td>
+                    <td>${s.qty}</td>
+                    <td>${s.cost.toFixed(2)}</td>
+                    <td>${s.price.toFixed(2)}</td>
+                    <td style="color: var(--success-color); font-weight: bold;">${profit.toFixed(2)}</td>
+                    <td><button onclick="deleteSale(${s.id})">🗑️</button></td>
+                </tr>
+            `;
+        });
+    }
+
+    // المصروفات
+    function addExpense(e) {
+        e.preventDefault();
+        const newExp = {
+            id: Date.now(),
+            date: new Date().toISOString().slice(0,10),
+            title: document.getElementById('expTitle').value,
+            amount: parseFloat(document.getElementById('expAmount').value) || 0
+        };
+        expenses.unshift(newExp);
+        saveData();
+        document.getElementById('expForm').reset();
+        renderExpenses();
+    }
+
+    function deleteExpense(id) {
+        expenses = expenses.filter(ex => ex.id !== id);
+        saveData();
+        renderExpenses();
+    }
+
+    function renderExpenses() {
+        const tbody = document.getElementById('expensesTableBody');
+        tbody.innerHTML = '';
+        expenses.forEach(ex => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${ex.date}</td>
+                    <td>${ex.title}</td>
+                    <td style="color: var(--danger-color);">${ex.amount.toFixed(2)}</td>
+                    <td><button onclick="deleteExpense(${ex.id})">🗑️</button></td>
+                </tr>
+            `;
+        });
+    }
+
+    // التقارير والحسابات
+    function updateReports() {
+        const fromDate = document.getElementById('filterFrom').value;
+        const toDate = document.getElementById('filterTo').value;
+
+        let filteredRepairs = repairs;
+        let filteredSales = sales;
+        let filteredExpenses = expenses;
+
+        if(fromDate && toDate) {
+            filteredRepairs = repairs.filter(r => r.date.slice(0,10) >= fromDate && r.date.slice(0,10) <= toDate);
+            filteredSales = sales.filter(s => s.date >= fromDate && s.date <= toDate);
+            filteredExpenses = expenses.filter(ex => ex.date >= fromDate && ex.date <= toDate);
+        }
+
+        const repairRev = filteredRepairs.reduce((sum, r) => sum + r.totalPrice, 0);
+        const repairCost = filteredRepairs.reduce((sum, r) => sum + r.partCost, 0);
+        
+        const salesRev = filteredSales.reduce((sum, s) => sum + s.price, 0);
+        const salesCost = filteredSales.reduce((sum, s) => sum + s.cost, 0);
+
+        const totalRevenue = repairRev + salesRev;
+        const totalCost = repairCost + salesCost;
+        const totalExpenses = filteredExpenses.reduce((sum, ex) => sum + ex.amount, 0);
+
+        const netProfit = totalRevenue - totalCost - totalExpenses;
+
+        document.getElementById('repTotalRevenue').innerText = totalRevenue.toFixed(2) + ' ج.م';
+        document.getElementById('repTotalCost').innerText = totalCost.toFixed(2) + ' ج.م';
+        document.getElementById('repTotalExpenses').innerText = totalExpenses.toFixed(2) + ' ج.م';
+        document.getElementById('repNetProfit').innerText = netProfit.toFixed(2) + ' ج.م';
+    }
+
+    function resetFilter() {
+        document.getElementById('filterFrom').value = '';
+        document.getElementById('filterTo').value = '';
+        updateReports();
+    }
+
+    // التشغيل الأولي
+    renderRepairs();
+    renderSales();
+    renderExpenses();
+</script>
+
+</body>
+</html>
